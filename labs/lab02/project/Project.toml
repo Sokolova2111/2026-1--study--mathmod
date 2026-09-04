@@ -2,6 +2,7 @@ name = "project"
 authors = ["Sokolova Aleksandra"]
 
 [deps]
+DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 DrWatson = "634d3b9d-ee7a-5ddf-bec9-22491ea816e1"
 IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"

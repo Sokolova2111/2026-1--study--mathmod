@@ -1,33 +1,24 @@
 # # Задача о погоне
-# Задание №1: Вывод дифференциальных уравнений для случая n-кратного превышения скорости
-# **Цель:** Провести аналогичные рассуждения и вывод дифференциальных уравнений,
-# если скорость катера больше скорости лодки в n раз.
+# Лабораторная работа №2
 
-# ## Инициализация проекта и загрузка пакетов
+# ## Инициализация проекта
 using Pkg
 Pkg.activate("C:/Users/Александра/work/study/2026-1/2026-1==study--mathmod/2026-1--study--mathmod/labs/lab02/project")
 using DrWatson
 @quickactivate "project"
 using DifferentialEquations
 using Plots
-using JLD2
+default(fmt = :png)
 
-script_name = "zadacha_o_pogone01"
-mkpath(plotsdir(script_name))
-mkpath(datadir(script_name))
+# ## Параметры задачи
+n = 3.0       # скорость катера больше скорости лодки в n раз (задаём самостоятельно)
+k = 12.0      # начальное расстояние между катером и лодкой (задаём самостоятельно)
 
-# ## Параметры варианта 35
-# Начальное расстояние между катером и лодкой: k = 18 км
-# Отношение скоростей: n = 4.9 (катер в 4.9 раз быстрее лодки)
-# Угол движения лодки: fi = 3*pi/4
-k = 18.0
-n = 4.9
-fi = 3*pi/4
+# Углы направления движения лодки для двух случаев (задаём самостоятельно)
+fi1 = pi/3    # 60°
+fi2 = 3*pi/4  # 135°
 
-println("=== Вариант 35 ===")
-println("k = $k км, n = $n, fi = $(round(fi*180/pi, digits=1))°")
-
-# ## Вывод дифференциального уравнения 
+# ## Вывод дифференциального уравнения
 #
 # По условию задачи скорость катера V в n раз больше скорости лодки v:
 # V = n * v
@@ -51,15 +42,8 @@ println("k = $k км, n = $n, fi = $(round(fi*180/pi, digits=1))°")
 #    x2 = k / (n - 1)
 
 # ## Определение начальных условий
-# Случай 1: катер между полюсом и лодкой
-r0_1 = k / (n + 1)
-# Случай 2: полюс между катером и лодкой
-r0_2 = k / (n - 1)
-
-# Начальные условия
-println("\nНачальные условия:")
-println("Случай 1: r0_1 = k/(n+1) = $k/$(n+1) = $(round(r0_1, digits=4)) км")
-println("Случай 2: r0_2 = k/(n-1) = $k/$(n-1) = $(round(r0_2, digits=4)) км")
+r0_1 = k / (n + 1)  # Случай 1: катер между полюсом и лодкой
+r0_2 = k / (n - 1)  # Случай 2: полюс между катером и лодкой
 
 # ## Вывод дифференциального уравнения движения катера
 #
@@ -91,50 +75,44 @@ println("Случай 2: r0_2 = k/(n-1) = $k/$(n-1) = $(round(r0_2, digits=4)) �
 # dr/dtheta = r / sqrt(n^2 - 1)
 
 # ## Решение дифференциального уравнения
-# Функция правой части: dr/dtheta = r / sqrt(n^2 - 1)
-function f(r, p, theta)
+function trajectory(r, p, theta)
     return r / sqrt(n^2 - 1)
 end
 
-# Случай 1: theta in [0, 2*pi]
-tspan1 = (0.0, 2*pi)
-prob1 = ODEProblem(f, r0_1, tspan1)
+# Случай 1
+prob1 = ODEProblem(trajectory, r0_1, (0.0, 2*pi))
 sol1 = solve(prob1, Tsit5(), saveat=0.01)
 
-# Случай 2: theta in [-pi, pi]
-tspan2 = (-pi, pi)
-prob2 = ODEProblem(f, r0_2, tspan2)
+# Случай 2
+prob2 = ODEProblem(trajectory, r0_2, (-pi, pi))
 sol2 = solve(prob2, Tsit5(), saveat=0.01)
 
-# ## Точки пересечения с траекторией лодки (theta = fi)
-r_meet1 = sol1(fi)
-r_meet2 = sol2(fi)
+# ## Точки пересечения с траекторией лодки
+r_meet1 = sol1(fi1)
+r_meet2 = sol2(fi2)
 
-println("\nТочки пересечения с траекторией лодки:")
-println("Случай 1: r1 = $(round(r_meet1, digits=4)) км")
-println("Случай 2: r2 = $(round(r_meet2, digits=4)) км")
-
-# ## Визуализация траекторий
-# Данные для траектории лодки (прямая линия под углом fi)
-theta_boat = [fi, fi]
-r_boat = [0, 25]
-
-p1 = plot(sol1.t, sol1.u, proj=:polar, lims=(0, 22),
+# ## Визуализация
+# Случай 1
+p1 = plot(sol1.t, sol1.u, proj=:polar, lims=(0, 25),
           title="Случай 1: катер между полюсом и лодкой",
           label="Катер", lw=2, color=:blue)
-plot!(p1, theta_boat, r_boat, label="Лодка", linestyle=:dash, color=:red, lw=2)
+plot!(p1, [fi1, fi1], [0, 25], label="Лодка", linestyle=:dash, color=:red, lw=2)
+scatter!(p1, [fi1], [r_meet1], label="Точка пересечения", color=:black, marker=:circle)
 
-p2 = plot(sol2.t, sol2.u, proj=:polar, lims=(0, 22),
+# Случай 2
+p2 = plot(sol2.t, sol2.u, proj=:polar, lims=(0, 25),
           title="Случай 2: полюс между катером и лодкой",
           label="Катер", lw=2, color=:green)
-plot!(p2, theta_boat, r_boat, label="Лодка", linestyle=:dash, color=:red, lw=2)
+plot!(p2, [fi2, fi2], [0, 25], label="Лодка", linestyle=:dash, color=:red, lw=2)
+scatter!(p2, [fi2], [r_meet2], label="Точка пересечения", color=:black, marker=:circle)
 
 final_plot = plot(p1, p2, layout=(1, 2), size=(1200, 550))
+display(final_plot)
+savefig(final_plot, plotsdir("trajectories.png"))
 
-# Сохранение результатов
-savefig(final_plot, plotsdir(script_name, "trajectories_var35.png"))
-
-println("\nГрафики сохранены в папку plots/")
-
-# Сохранение данных
-@save datadir(script_name, "results.jld2") sol1 sol2 r_meet1 r_meet2
+# ## Вывод результатов
+println("\n=== Результаты ===")
+println("Дифференциальное уравнение: dr/dtheta = r / sqrt(n^2 - 1)")
+println("n = $n, k = $k")
+println("Точка пересечения (случай 1): r = $(round(r_meet1, digits=3)), theta = $(round(fi1*180/pi, digits=1))°")
+println("Точка пересечения (случай 2): r = $(round(r_meet2, digits=3)), theta = $(round(fi2*180/pi, digits=1))°")

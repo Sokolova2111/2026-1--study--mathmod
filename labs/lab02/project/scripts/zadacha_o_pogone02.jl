@@ -14,11 +14,6 @@ using DifferentialEquations
 using Plots
 using JLD2
 
-script_name = "zadacha_o_pogone02"
-mkpath(plotsdir(script_name))
-mkpath(datadir(script_name))
-
-
 # ## Параметры варианта 35
 # Начальное расстояние между катером и лодкой: k = 18 км
 # Отношение скоростей: n = 4.9 (катер в 4.9 раз быстрее лодки)
@@ -89,21 +84,20 @@ p1 = plot(sol1.t, sol1.u, proj=:polar, lims=(0, 22),
           title="Случай 1: катер между полюсом и лодкой\n(угол лодки = $(round(fi1*180/pi, digits=1))°)",
           label="Катер", lw=2, color=:blue)
 plot!(p1, theta_boat1, r_boat1, label="Лодка", linestyle=:dash, color=:red, lw=2)
-scatter!(p1, [fi1], [r_meet1], label = "Точка пересечения", color=:black, marker=:circle) # Добавляем точку пересечения для график
+scatter!(p1, [fi1], [r_meet1], label = "Точка пересечения", color=:black, marker=:circle)
 
 # График для случая 2:
 p2 = plot(sol2.t, sol2.u, proj=:polar, lims=(0, 22),
           title="Случай 2: полюс между катером и лодкой\n(угол лодки = $(round(fi2*180/pi, digits=1))°)",
           label="Катер", lw=2, color=:green)
 plot!(p2, theta_boat2, r_boat2, label="Лодка", linestyle=:dash, color=:red, lw=2)
-scatter!(p2, [fi2], [r_meet2], label = "Точка пересечения", color=:black, marker=:circle) # Добавляем точку пересечения для график
+scatter!(p2, [fi2], [r_meet2], label = "Точка пересечения", color=:black, marker=:circle)
 
 final_plot = plot(p1, p2, layout=(1, 2), size=(1200, 550))
 
 # Сохранение результатов
-savefig(final_plot, plotsdir(script_name, "trajectories_var35.png"))
-
+savefig(final_plot, plotsdir("trajectories_var35.png"))
 println("\nГрафики сохранены в папку plots/")
 
 # Сохранение данных
-@save datadir(script_name, "results.jld2") sol1 sol2 r_meet1 r_meet2
+@save datadir("results2.jld2") sol1 sol2 r_meet1 r_meet2
